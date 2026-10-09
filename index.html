@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f5b942">
+<title>Ананас учит английский</title>
+<style>
+:root{--yellow:#ffd66b;--orange:#ed9d32;--green:#367b58;--ink:#27352d;--paper:#fffdf7;--line:#e8dfcc;--muted:#68766c;--red:#b94b43}
+*{box-sizing:border-box}body{margin:0;background:#f7f4eb;color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{background:linear-gradient(135deg,#ffe79a,#ffc95c);padding:22px 16px 18px;text-align:center;border-bottom:4px solid #f2b64e}
+header .pine{font-size:42px;line-height:1}h1{font-size:clamp(24px,5vw,34px);margin:8px 0 2px}header p{margin:0;color:#574624}
+main{max-width:980px;margin:20px auto;padding:0 14px 36px}.authbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.status{font-size:13px;color:var(--muted)}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+button,.button{border:0;border-radius:12px;padding:11px 15px;font:inherit;font-weight:650;cursor:pointer;background:var(--green);color:white}
+button.secondary{background:#e8eee8;color:var(--ink)}button.gold{background:var(--orange);color:#2f260f}button.danger{background:#f8e4e1;color:var(--red)}button:disabled{opacity:.45;cursor:not-allowed}
+.tab{background:#e9e5d8;color:var(--ink)}.tab.active{background:var(--green);color:white}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:14px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 3px 12px #40351b0a}
+h2{font-size:20px;margin:0 0 12px}h3{font-size:17px;margin:0 0 8px}
+label{display:block;font-weight:650;font-size:14px;margin:10px 0 5px}input,textarea,select{width:100%;padding:11px 12px;border:1px solid #d9d1bf;border-radius:10px;background:white;color:var(--ink);font:inherit}
+textarea{min-height:125px;resize:vertical}.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}.hint{font-size:13px;color:var(--muted)}.hidden{display:none!important}
+.wordlist{display:flex;flex-direction:column;gap:8px}.word{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:white}.word strong{display:block}.word small{color:var(--muted)}
+.pill{font-size:12px;background:#f1ead7;border-radius:99px;padding:4px 8px;white-space:nowrap}
+.flash{padding:22px 14px;text-align:center;background:#fff5d6;border-radius:15px;margin:12px 0}.prompt{font-size:clamp(28px,6vw,40px);font-weight:800;overflow-wrap:anywhere}.subprompt{color:var(--muted);margin-top:5px}.answers{display:grid;gap:8px;margin-top:12px}.answers button{background:white;color:var(--ink);border:1px solid var(--line);text-align:left}.answers button.correct{background:#dff2df;border-color:#72b77d}.answers button.wrong{background:#fbe2df;border-color:#df8b83}
+.feedback{font-weight:700;margin:12px 0;min-height:24px}.good{color:var(--green)}.bad{color:var(--red)}.metric{font-size:28px;font-weight:800}.metrics{display:flex;gap:12px;flex-wrap:wrap}.metrics>div{flex:1;min-width:100px;background:#f4f0e5;padding:12px;border-radius:12px}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:20px}
+@media(max-width:500px){main{padding:0 10px 24px}.card{padding:14px}.authbar{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header><div class="pine" aria-hidden="true">🍍</div><h1>Ананас учит английский</h1><p>Учись, проверяй себя и побеждай сложные слова!</p></header>
+<main>
+  <div class="authbar">
+    <div><strong id="accountLabel">Личный тренажёр</strong><div class="status" id="syncStatus">Локальный режим: настройте Firebase для облачной синхронизации.</div></div>
+    <div class="row" style="flex:0 1 auto"><button id="signInBtn" class="secondary">Войти для синхронизации</button><button id="signOutBtn" class="secondary hidden">Выйти</button></div>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-tab="study">Тренировка</button>
+    <button class="tab" data-tab="add">Добавить слова</button>
+    <button class="tab" data-tab="words">Мои слова</button>
+    <button class="tab" data-tab="progress">Результаты</button>
+  </div>
+  <section id="panel-study" class="grid">
+    <div class="card">
+      <h2>Выбери тренировку</h2>
+      <label for="topicFilter">Набор слов</label><select id="topicFilter"><option value="all">Все слова</option></select>
+      <label for="mode">Режим</label><select id="mode"><option value="mix">Вперемешку</option><option value="enru">Английский → русский</option><option value="ruen">Русский → английский (ввод)</option><option value="quiz">Тест с вариантами</option></select>
+      <label for="roundSize">Слов за раунд</label><select id="roundSize"><option>10</option><option>15</option><option>20</option><option value="all">Все слова в наборе</option></select>
+      <button id="startBtn" style="width:100%;margin-top:14px">Начать тренировку</button>
+      <p class="hint">В конце увидишь результат и слова, которые стоит повторить.</p>
+    </div>
+    <div class="card">
+      <h2>Как это работает</h2>
+      <p>1. Добавь слова по одному или вставь список целиком.</p>
+      <p>2. Выбери набор и режим проверки.</p>
+      <p>3. Отвечай, а в конце повтори ошибки.</p>
+      <div class="metrics"><div><div class="metric" id="totalWords">0</div><div class="hint">слов в словаре</div></div><div><div class="metric" id="totalRounds">0</div><div class="hint">завершённых раундов</div></div></div>
+    </div>
+    <div class="card hidden" id="quizCard" style="grid-column:1/-1">
+      <div class="row" style="align-items:center"><h2 id="roundHeading" style="flex:1">Тренировка</h2><span class="pill" id="counter">1 / 10</span></div>
+      <div class="flash"><div class="prompt" id="questionWord"></div><div class="subprompt" id="questionHint"></div></div>
+      <div id="answerArea"></div><div id="feedback" class="feedback" aria-live="polite"></div>
+      <div class="row"><button id="checkBtn">Проверить</button><button id="nextBtn" class="secondary hidden">Дальше</button><button id="stopBtn" class="danger">Закончить</button></div>
+    </div>
+    <div class="card hidden" id="summaryCard" style="grid-column:1/-1">
+      <h2>Раунд завершён! 🍍</h2><div class="metrics"><div><div class="metric" id="scoreText">0%</div><div class="hint">правильных ответов</div></div><div><div class="metric" id="scoreFraction">0 / 0</div><div class="hint">баллы</div></div></div>
+      <h3 style="margin-top:16px">Слова для повторения</h3><div id="mistakesList" class="wordlist"></div><button id="retryMistakes" style="margin-top:14px">Повторить ошибки</button> <button id="newRound" class="secondary" style="margin-top:14px">Новый раунд</button>
+    </div>
+  </section>
+  <section id="panel-add" class="grid hidden">
+    <div class="card">
+      <h2>Добавить одно слово</h2>
+      <form id="singleForm">
+        <label for="enWord">Слово или фраза на английском</label><input id="enWord" required placeholder="например, beautiful">
+        <label for="ruWord">Перевод на русский</label><input id="ruWord" required placeholder="например, красивый">
+        <label for="singleTopic">Набор / тема</label><input id="singleTopic" placeholder="например, Unit 3" value="Мои слова">
+        <button style="width:100%;margin-top:14px">Добавить слово</button>
+      </form>
+    </div>
+    <div class="card">
+      <h2>Добавить список слов</h2>
+      <p class="hint">Каждая строка — отдельная пара. Подойдут разделители: тире, табуляция, точка с запятой или знак =.</p>
+      <label for="bulkTopic">Набор / тема для всего списка</label><input id="bulkTopic" value="Мои слова" placeholder="например, Unit 3">
+      <label for="bulkWords">Список слов</label><textarea id="bulkWords" placeholder="beautiful — красивый&#10;clever — умный&#10;strong — сильный"></textarea>
+      <button id="bulkAddBtn" style="width:100%;margin-top:10px">Добавить список</button>
+      <p class="hint">Если слово уже есть с таким переводом, повторно оно не добавится.</p>
+    </div>
+    <div class="card" style="grid-column:1/-1">
+      <h2>Перенос слов между устройствами</h2><p>Можно сохранить словарь в файл или загрузить ранее сохранённый файл. При входе через Google словарь синхронизируется через облако.</p>
+      <div class="row"><button id="exportBtn" class="secondary">Скачать резервную копию</button><label class="button secondary" style="text-align:center;display:block">Загрузить копию JSON<input type="file" id="importFile" accept=".json,application/json" class="hidden"></label></div>
+      <p class="hint">Импорт добавляет новые пары и не удаляет существующие.</p>
+    </div>
+  </section>
+  <section id="panel-words" class="card hidden">
+    <div class="row" style="align-items:center"><h2 style="flex:1">Мои слова</h2><button id="exportBtn2" class="secondary">Экспорт</button></div>
+    <div class="row"><input id="searchWords" placeholder="Поиск слова или перевода"><select id="wordTopicFilter"><option value="all">Все темы</option></select></div>
+    <p class="hint" id="wordCountLabel"></p><div id="wordsList" class="wordlist"></div>
+  </section>
+  <section id="panel-progress" class="grid hidden">
+    <div class="card"><h2>Твой прогресс</h2><div class="metrics"><div><div class="metric" id="pRounds">0</div><div class="hint">раундов</div></div><div><div class="metric" id="pAccuracy">—</div><div class="hint">точность</div></div><div><div class="metric" id="pAnswers">0</div><div class="hint">ответов</div></div></div></div>
+    <div class="card"><h2>Последние раунды</h2><div id="historyList" class="wordlist"></div><button id="clearProgress" class="danger" style="margin-top:12px">Очистить результаты</button></div>
+  </section>
+  <footer>«Ананас учит английский» • Учебный проект для домашней практики</footer>
+</main>
+<script type="module">
+let initializeApp, getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged;
+let getFirestore, doc, getDoc, setDoc;
+
+/* Вставьте сюда конфигурацию своего Firebase-проекта из инструкции. */
+const firebaseConfig = {
+  apiKey: "PASTE_API_KEY_HERE",
+  authDomain: "PASTE_PROJECT_ID_HERE.firebaseapp.com",
+  projectId: "PASTE_PROJECT_ID_HERE",
+  appId: "PASTE_APP_ID_HERE"
+};
+const firebaseReady = !Object.values(firebaseConfig).some(v => String(v).includes("PASTE_"));
+let auth=null, db=null, user=null, saveTimer=null, cloudLoading=false;
+if(firebaseReady){
+  try{
+    const [appMod,authMod,storeMod]=await Promise.all([
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js")
+    ]);
+    initializeApp=appMod.initializeApp;
+    ({getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged}=authMod);
+    ({getFirestore,doc,getDoc,setDoc}=storeMod);
+    const app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);
+  }catch(e){console.error(e);setTimeout(()=>setStatus("Не удалось загрузить Firebase. Проверьте интернет и настройки проекта."),0)}
+}
+const $=id=>document.getElementById(id);
+const STORAGE_KEY="ananasEnglishTrainer_v1";
+let data={words:[],history:[]};
+let round=null;
+function uid(){return (crypto.randomUUID?crypto.randomUUID():Date.now()+"_"+Math.random().toString(36).slice(2))}
+function normalize(s){return String(s||"").trim().toLocaleLowerCase("ru").replace(/[’‘`]/g,"'").replace(/\s+/g," ")}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function setStatus(s){$("syncStatus").textContent=s}
+function loadLocal(){try{const x=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");data={words:Array.isArray(x.words)?x.words:[],history:Array.isArray(x.history)?x.history:[]}}catch{data={words:[],history:[]}}}
+function saveLocal(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}
+function scheduleCloudSave(){
+  saveLocal();
+  if(user&&db&&!cloudLoading){setStatus("Сохранение изменений в облако…");clearTimeout(saveTimer);saveTimer=setTimeout(saveCloud,500)}
+  renderAll();
+}
+async function saveCloud(){
+  if(!user||!db||cloudLoading)return;
+  try{await setDoc(doc(db,"users",user.uid,"trainer","data"),{...data,updatedAt:Date.now()});setStatus("Синхронизировано с облаком ✓")}
+  catch(e){console.error(e);setStatus("Не удалось сохранить в облако. Проверьте подключение и настройки Firebase.")}
+}
+async function loadCloud(){
+  if(!user||!db)return;
+  cloudLoading=true;setStatus("Загружаем ваш словарь из облака…");
+  try{
+    const ref=doc(db,"users",user.uid,"trainer","data"),snap=await getDoc(ref);
+    if(snap.exists()){
+      const cloud=snap.data();data={words:Array.isArray(cloud.words)?cloud.words:[],history:Array.isArray(cloud.history)?cloud.history:[]};
+    }else{
+      // При первом входе переносим локальные данные в облако.
+      saveLocal();await setDoc(ref,{...data,updatedAt:Date.now()});
+    }
+    saveLocal();setStatus("Синхронизировано с облаком ✓");
+  }catch(e){console.error(e);setStatus("Ошибка облака. Проверьте Firestore Rules и настройки проекта.");}
+  finally{cloudLoading=false;renderAll()}
+}
+function addWord(en,ru,topic){
+  en=en.trim();ru=ru.trim();topic=(topic||"Мои слова").trim()||"Мои слова";
+  if(!en||!ru)return false;
+  if(data.words.some(w=>normalize(w.en)===normalize(en)&&normalize(w.ru)===normalize(ru)&&normalize(w.topic)===normalize(topic)))return false;
+  data.words.push({id:uid(),en,ru,topic,createdAt:Date.now()});return true;
+}
+function topics(){return [...new Set(data.words.map(w=>w.topic||"Мои слова"))].sort((a,b)=>a.localeCompare(b,"ru"))}
+function refreshTopicSelects(){
+  const opts=topics().map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
+  const old=$("topicFilter").value,old2=$("wordTopicFilter").value;
+  $("topicFilter").innerHTML='<option value="all">Все слова</option>'+opts;
+  $("wordTopicFilter").innerHTML='<option value="all">Все темы</option>'+opts;
+  if([...$("topicFilter").options].some(o=>o.value===old))$("topicFilter").value=old;
+  if([...$("wordTopicFilter").options].some(o=>o.value===old2))$("wordTopicFilter").value=old2;
+}
+function renderWords(){
+  const q=normalize($("searchWords").value),t=$("wordTopicFilter").value;
+  const list=data.words.filter(w=>(t==="all"||(w.topic||"Мои слова")===t)&&(!q||normalize(w.en).includes(q)||normalize(w.ru).includes(q)||normalize(w.topic).includes(q)));
+  $("wordCountLabel").textContent=`Показано ${list.length} из ${data.words.length} слов`;
+  $("wordsList").innerHTML=list.length?list.map(w=>`<div class="word"><div><strong>${esc(w.en)} — ${esc(w.ru)}</strong><small>${esc(w.topic||"Мои слова")}</small></div><button class="danger" data-delete="${esc(w.id)}" aria-label="Удалить слово">Удалить</button></div>`).join(""):'<p class="hint">Слова пока не добавлены. Открой раздел «Добавить слова».</p>';
+  $("wordsList").querySelectorAll("[data-delete]").forEach(b=>b.addEventListener("click",()=>{if(confirm("Удалить это слово?")){data.words=data.words.filter(w=>w.id!==b.dataset.delete);scheduleCloudSave()}}));
+}
+function renderProgress(){
+  const h=data.history;$("totalRounds").textContent=h.length;$("pRounds").textContent=h.length;
+  const answers=h.reduce((s,r)=>s+r.total,0),correct=h.reduce((s,r)=>s+r.correct,0);
+  $("pAnswers").textContent=answers;$("pAccuracy").textContent=answers?Math.round(correct/answers*100)+"%":"—";
+  $("historyList").innerHTML=h.length?[...h].reverse().slice(0,12).map(r=>`<div class="word"><div><strong>${esc(r.correct)} из ${esc(r.total)} — ${Math.round(r.total?r.correct/r.total*100:0)}%</strong><small>${esc(new Date(r.date).toLocaleString("ru-RU"))} · ${esc(r.modeLabel||"Тренировка")}</small></div></div>`).join(""):'<p class="hint">Завершённые тренировки появятся здесь.</p>';
+}
+function renderAll(){
+  refreshTopicSelects();$("totalWords").textContent=data.words.length;renderWords();renderProgress();
+}
+function showTab(tab){
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
+  ["study","add","words","progress"].forEach(t=>$("panel-"+t).classList.toggle("hidden",t!==tab));
+}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+$("singleForm").addEventListener("submit",e=>{
+  e.preventDefault();const ok=addWord($("enWord").value,$("ruWord").value,$("singleTopic").value);
+  if(ok){scheduleCloudSave();$("enWord").value="";$("ruWord").value="";setStatus(user?"Слово добавлено; синхронизация…":"Слово сохранено на этом устройстве.");}
+  else alert("Такая пара слов уже есть в этом наборе.");
+});
+$("bulkAddBtn").addEventListener("click",()=>{
+  const lines=$("bulkWords").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);let added=0,skipped=0,bad=0;const topic=$("bulkTopic").value;
+  for(const line of lines){
+    let parts=line.split(/\s*(?:—|–|;|\t|=)\s*/);
+    if(parts.length<2){bad++;continue}
+    const en=parts.shift().trim(),ru=parts.join(" — ").trim();
+    if(addWord(en,ru,topic))added++;else skipped++;
+  }
+  if(added){scheduleCloudSave();$("bulkWords").value=""}
+  alert(`Добавлено: ${added}\nУже были: ${skipped}\nНе распознано строк: ${bad}${bad?"\nИспользуйте формат: английское слово — перевод":""}`);
+});
+$("searchWords").addEventListener("input",renderWords);$("wordTopicFilter").addEventListener("change",renderWords);
+$("exportBtn").addEventListener("click",exportData);$("exportBtn2").addEventListener("click",exportData);
+function exportData(){
+  const blob=new Blob([JSON.stringify({...data,exportedAt:new Date().toISOString()},null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="ananas-english-backup.json";a.click();URL.revokeObjectURL(a.href);
+}
+$("importFile").addEventListener("change",async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{const x=JSON.parse(await f.text());if(!Array.isArray(x.words))throw Error("invalid");
+    let n=0;for(const w of x.words){if(w.en&&w.ru&&addWord(w.en,w.ru,w.topic||"Импорт"))n++}
+    if(Array.isArray(x.history))data.history=[...data.history,...x.history];
+    scheduleCloudSave();alert(`Импорт завершён. Добавлено слов: ${n}.`)}
+  catch{alert("Не удалось прочитать файл. Выберите резервную копию тренажёра в формате JSON.")}
+  e.target.value="";
+});
+function eligibleWords(){
+  const t=$("topicFilter").value;return data.words.filter(w=>t==="all"||(w.topic||"Мои слова")===t);
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startRound(source=null){
+  let words=(source||eligibleWords()).slice();if(!words.length){alert("Сначала добавь слова в тренажёр.");showTab("add");return}
+  shuffle(words);const size=$("roundSize").value; if(!source&&size!=="all")words=words.slice(0,Number(size));
+  const mode=source?"mix":$("mode").value;
+  round={words,index:0,correct:0,answers:[],mode,modeLabel:({mix:"Вперемешку",enru:"Английский → русский",ruen:"Русский → английский",quiz:"Тест"})[mode]||"Повтор ошибок",locked:false};
+  $("summaryCard").classList.add("hidden");$("quizCard").classList.remove("hidden");$("roundHeading").textContent=source?"Повтор ошибок":"Тренировка";showTab("study");renderQuestion();
+  $("quizCard").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function renderQuestion(){
+  if(!round)return;const w=round.words[round.index],mode=round.mode==="mix"?(["enru","ruen","quiz"][Math.floor(Math.random()*3)]):round.mode;
+  round.currentMode=mode;round.locked=false;
+  $("counter").textContent=`${round.index+1} / ${round.words.length}`;$("questionWord").textContent=mode==="ruen"?w.ru:w.en;
+  $("questionHint").textContent=mode==="ruen"?"Напиши слово по-английски":mode==="enru"?"Вспомни перевод на русский":"Выбери правильный перевод";
+  $("feedback").textContent="";$("feedback").className="feedback";$("nextBtn").classList.add("hidden");$("checkBtn").classList.remove("hidden");$("checkBtn").disabled=false;
+  const area=$("answerArea");
+  if(mode==="quiz"){
+    const opts=shuffle([w,...shuffle(data.words.filter(x=>x.id!==w.id)).slice(0,3)]);area.innerHTML='<div class="answers">'+opts.map(x=>`<button type="button" data-answer="${esc(x.id)}">${esc(x.ru)}</button>`).join("")+'</div><input id="typedAnswer" class="hidden">';
+    area.querySelectorAll("[data-answer]").forEach(b=>b.addEventListener("click",()=>{if(round.locked)return;area.querySelectorAll("button").forEach(z=>z.disabled=true);b.classList.add(b.dataset.answer===w.id?"correct":"wrong");round.pending=b.dataset.answer===w.id? w.ru:"";round.pendingCorrect=b.dataset.answer===w.id;checkAnswer(round.pending,true)}));
+  }else{
+    area.innerHTML=`<input id="typedAnswer" autocomplete="off" placeholder="${mode==="ruen"?"Напиши по-английски":"Напиши перевод на русском"}"><p class="hint">Можно нажать Enter для проверки.</p>`;
+    $("typedAnswer").addEventListener("keydown",e=>{if(e.key==="Enter"&&!round.locked)checkAnswer($("typedAnswer").value,false)});
+    $("typedAnswer").focus();
+  }
+}
+function checkAnswer(value,fromQuiz){
+  if(!round||round.locked)return;
+  const w=round.words[round.index],mode=round.currentMode;
+  let ok;
+  if(fromQuiz)ok=!!round.pendingCorrect;
+  else ok=normalize(value)===normalize(mode==="ruen"?w.en:w.ru);
+  round.locked=true;if(ok)round.correct++;
+  round.answers.push({word:w,correct:ok,userAnswer:value||"",mode});
+  $("feedback").textContent=ok?"Правильно! Отличная работа! 🍍":`Пока не получилось. Правильный ответ: ${mode==="ruen"?w.en:w.ru}`;
+  $("feedback").className="feedback "+(ok?"good":"bad");
+  $("checkBtn").classList.add("hidden");$("nextBtn").classList.remove("hidden");
+}
+$("checkBtn").addEventListener("click",()=>checkAnswer($("typedAnswer")?.value||"",false));
+$("nextBtn").addEventListener("click",()=>{if(round.index+1<round.words.length){round.index++;renderQuestion()}else finishRound()});
+$("stopBtn").addEventListener("click",()=>{if(round&&confirm("Закончить тренировку сейчас?"))finishRound()});
+function finishRound(){
+  if(!round)return;const r=round;const answered=r.answers.length;const mistakes=r.answers.filter(a=>!a.correct);
+  if(answered){data.history.push({date:Date.now(),correct:r.correct,total:answered,modeLabel:r.modeLabel,mistakes:mistakes.map(a=>({en:a.word.en,ru:a.word.ru,topic:a.word.topic}))});scheduleCloudSave()}
+  $("quizCard").classList.add("hidden");$("summaryCard").classList.remove("hidden");
+  $("scoreText").textContent=answered?Math.round(r.correct/answered*100)+"%":"0%";$("scoreFraction").textContent=`${r.correct} / ${answered}`;
+  $("mistakesList").innerHTML=mistakes.length?mistakes.map(a=>`<div class="word"><div><strong>${esc(a.word.en)} — ${esc(a.word.ru)}</strong><small>Твой ответ: ${esc(a.userAnswer||"не отвечено")}</small></div></div>`).join(""):'<p class="good">Ошибок нет — отлично! 🎉</p>';
+  $("retryMistakes").disabled=!mistakes.length;$("retryMistakes").onclick=()=>startRound(mistakes.map(a=>a.word));
+  round=null;$("summaryCard").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("startBtn").addEventListener("click",()=>startRound());
+$("newRound").addEventListener("click",()=>{$("summaryCard").classList.add("hidden");$("quizCard").classList.add("hidden");showTab("study")});
+$("clearProgress").addEventListener("click",()=>{if(confirm("Удалить историю результатов? Словарь останется.")){data.history=[];scheduleCloudSave()}});
+$("signInBtn").addEventListener("click",async()=>{
+  if(!firebaseReady){alert("Сначала настройте Firebase по инструкции в файле README.txt. После этого добавьте конфигурацию в index.html и загрузите сайт на хостинг.");return}
+  try{await signInWithPopup(auth,new GoogleAuthProvider())}catch(e){console.error(e);alert("Не удалось войти. Проверьте, включён ли Google-вход в Firebase Authentication и разрешён ли домен сайта.")}
+});
+$("signOutBtn").addEventListener("click",async()=>{if(auth)await signOut(auth)});
+loadLocal();renderAll();
+if(firebaseReady){
+  onAuthStateChanged(auth,async u=>{
+    user=u;
+    $("signInBtn").classList.toggle("hidden",!!u);$("signOutBtn").classList.toggle("hidden",!u);
+    $("accountLabel").textContent=u?`Синхронизация: ${u.displayName||u.email||"аккаунт Google"}`:"Личный тренажёр";
+    if(u)await loadCloud();else{setStatus("Вы вышли. Данные на этом устройстве сохранены.");renderAll()}
+  });
+}else{
+  $("signInBtn").addEventListener("click",()=>{});
+  setStatus("Локальный режим готов. Для облака выполните настройку из README.txt.");
+}
+</script>
+</body>
+</html>
